@@ -1,9 +1,6 @@
 from flask_openapi3 import OpenAPI, Info, Tag
 from flask import redirect, request, jsonify
 from urllib.parse import unquote
-
-from sqlalchemy.exc import IntegrityError
-
 from model import *
 from logger import logger
 from schemas import *
@@ -18,7 +15,6 @@ CORS(app)
 # Definindo tags para agrupamento das rotas
 home_tag = Tag(name="Documentação", description="Seleção de documentação: Swagger, Redoc ou RapiDoc")
 paciente_tag = Tag(name="Paciente", description="Adição, visualização, remoção e predição de pacientes com Diabetes")
-
 
 # Rota home
 @app.get('/', tags=[home_tag])
@@ -58,6 +54,13 @@ def get_pacientes():
 @app.post('/paciente', tags=[paciente_tag],
           responses={"200": PacienteViewSchema, "400": ErrorSchema, "409": ErrorSchema})
 def predict():
+    """Insere um paciente na base de dados e realiza sua predição
+    Args:
+       none
+        
+    Returns:
+        list: lista de pacientes cadastrados na base
+    """
     try:
         content: PacienteSchema = request.get_json()  # Extraindo JSON da requisição
 
@@ -101,7 +104,6 @@ def predict():
     except Exception as e:
         logger.error(f"Erro ao adicionar paciente: {str(e)}")
         return jsonify({"message": "Erro no servidor"}), 500
-
 
 # Métodos baseados em name
 # Rota de busca de paciente por nome
