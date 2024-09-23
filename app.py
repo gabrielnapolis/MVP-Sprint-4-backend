@@ -6,7 +6,6 @@ from logger import logger
 from schemas import *
 from flask_cors import CORS
 
-
 # Instanciando o objeto OpenAPI
 info = Info(title="Minha API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
@@ -16,22 +15,18 @@ CORS(app)
 home_tag = Tag(name="Documentação", description="Seleção de documentação: Swagger, Redoc ou RapiDoc")
 paciente_tag = Tag(name="Paciente", description="Adição, visualização, remoção e predição de pacientes com Diabetes")
 
-# Rota home
+
 @app.get('/', tags=[home_tag])
 def home():
-    """Redireciona para /openapi, tela que permite a escolha do estilo de documentação.
+    """Seleção de documentação.
     """
     return redirect('/openapi')
 
 
-# Rota de listagem de pacientes
 @app.get('/pacientes', tags=[paciente_tag],
          responses={"200": PacienteViewSchema, "404": ErrorSchema})
 def get_pacientes():
-    """Lista todos os pacientes cadastrados na base
-    Args:
-       none
-        
+    """Lista todos os pacientes cadastrados na base     
     Returns:
         list: lista de pacientes cadastrados na base
     """
@@ -50,7 +45,6 @@ def get_pacientes():
         return apresenta_pacientes(pacientes), 200
 
 
-# Rota de adição de paciente
 @app.post('/paciente', tags=[paciente_tag],
           responses={"200": PacienteViewSchema, "400": ErrorSchema, "409": ErrorSchema})
 def predict():
@@ -105,39 +99,7 @@ def predict():
         logger.error(f"Erro ao adicionar paciente: {str(e)}")
         return jsonify({"message": "Erro no servidor"}), 500
 
-# Métodos baseados em name
-# Rota de busca de paciente por nome
-@app.get('/paciente', tags=[paciente_tag],
-         responses={"200": PacienteViewSchema, "404": ErrorSchema})
-def get_paciente(query: PacienteBuscaSchema):    
-    """Faz a busca por um paciente cadastrado na base a partir do name
 
-    Args:
-        name (str): name do paciente
-        
-    Returns:
-        dict: representação do paciente e diagnóstico associado
-    """
-    
-    paciente_name = query.name
-    logger.debug(f"Coletando dados sobre produto #{paciente_name}")
-    # criando conexão com a base
-    session = Session()
-    # fazendo a busca
-    paciente = session.query(Paciente).filter(Paciente.name == paciente_name).first()
-    
-    if not paciente:
-        # se o paciente não foi encontrado
-        error_msg = f"Paciente {paciente_name} não encontrado na base :/"
-        logger.warning(f"Erro ao buscar produto '{paciente_name}', {error_msg}")
-        return {"mesage": error_msg}, 404
-    else:
-        logger.debug(f"Paciente econtrado: '{paciente.name}'")
-        # retorna a representação do paciente
-        return apresenta_paciente(paciente), 200
-   
-    
-# Rota de remoção de paciente por name
 @app.delete('/paciente', tags=[paciente_tag],
             responses={"200": PacienteViewSchema, "404": ErrorSchema})
 def delete_paciente(query: PacienteBuscaSchema):
@@ -168,6 +130,7 @@ def delete_paciente(query: PacienteBuscaSchema):
         session.commit()
         logger.debug(f"Deletado paciente #{paciente_name}")
         return {"message": f"Paciente {paciente_name} removido com sucesso!"}, 200
-    
+
+ 
 if __name__ == '__main__':
     app.run(debug=True)
