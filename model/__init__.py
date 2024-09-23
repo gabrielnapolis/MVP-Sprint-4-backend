@@ -5,7 +5,7 @@ import os
 
 # importando os elementos definidos no modelo
 from model.base import Base
-from model.paciente import Paciente
+from model.patient import Patient
 from model.modelo import Model
 from model.pipeline import Pipeline
 from model.preprocessador import PreProcessador

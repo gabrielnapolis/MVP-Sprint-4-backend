@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, Float
 
 from model import Base
 
-class Paciente(Base):
+class Patient(Base):
     __tablename__ = 'patient'
     
     id = Column(Integer, primary_key=True)
