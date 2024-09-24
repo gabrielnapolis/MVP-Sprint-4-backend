@@ -12,7 +12,7 @@ app = OpenAPI(__name__, info=info)
 CORS(app)
 
 # Grouping routes tags
-home_tag = Tag(name="Documentation", description="Document Selection: Swagger, Redoc ou RapiDoc.")
+home_tag = Tag(name="Documentation", description="Document Selection: Swagger, Redoc or RapiDoc.")
 patient_tag = Tag(name="Patients", description="Insert, view, remove and prediction of Heart Disease Patients.")
 
 
