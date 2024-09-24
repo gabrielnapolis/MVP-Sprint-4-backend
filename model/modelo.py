@@ -2,7 +2,7 @@ import pickle
 from model.preprocessador import PreProcessador
 class Model:
     
-    def carrega_modelo(path):
+    def loader_model(path):
         """Dependendo se o final for .pkl ou .joblib, carregamos de uma forma ou de outra
         """
         

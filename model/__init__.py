@@ -9,8 +9,8 @@ from model.patient import Patient
 from model.modelo import Model
 from model.pipeline import Pipeline
 from model.preprocessador import PreProcessador
-from model.avaliador import Avaliador
-from model.carregador import Carregador
+from model.evaluator import Evaluator
+from model.loader import Loader
 
 db_path = "database/"
 # Verifica se o diretorio não existe
