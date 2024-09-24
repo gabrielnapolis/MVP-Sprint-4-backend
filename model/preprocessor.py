@@ -2,30 +2,25 @@ from sklearn.model_selection import train_test_split
 import pickle
 import numpy as np
 
-class PreProcessador:
+class PreProcessor:
 
     def separa_teste_treino(self, dataset, percentual_teste, seed=7):
         
-        # divisão em treino e teste
-        X_train, X_test, Y_train, Y_test = self.__preparar_holdout(dataset,
+        # division on training  and test
+        X_train, X_test, Y_train, Y_test = self.__prepare_holdout(dataset,
                                                                   percentual_teste,
                                                                   seed)
-        # normalização/padronização
-        
+        # normalization/standardization
         return (X_train, X_test, Y_train, Y_test)
     
-    def __preparar_holdout(self, dataset, percentual_teste, seed):
-        """ Divide os dados em treino e teste usando o método holdout.
-        Assume que a variável target está na última coluna.
-        O parâmetro test_size é o percentual de dados de teste.
-        """
+    def __prepare_holdout(self, dataset, percentual_teste, seed):
+
         dados = dataset.values
         X = dados[:, 0:-1]
         Y = dados[:, -1]
         return train_test_split(X, Y, test_size=percentual_teste, random_state=seed)
     
-    def preparar_form(form):
-        """ Prepara os dados recebidos do front para serem usados no modelo. """
+    def prepare_form(form):
         X_input = np.array([
                             form['age'], 
                             form['sex'], 
@@ -41,13 +36,12 @@ class PreProcessador:
                             form['ca'], 
                             form['thal']
                         ])
-        # Faremos o reshape para que o modelo entenda que estamos passando
         X_input = X_input.reshape(1, -1)
         return X_input
     
     def scaler(X_train):
-        """ Normaliza os dados. """
-        # normalização/padronização
+        
+        # normalization/standardization
         scaler = pickle.load(open('./MachineLearning/scalers/minmax_scaler_heart_disease.pkl', 'rb'))
         reescaled_X_train = scaler.transform(X_train)
         return reescaled_X_train

@@ -3,8 +3,8 @@ import pickle
 
 class Pipeline:
     
-    def carrega_pipeline(path):
-        """Carregamos o pipeline construindo durante a fase de treinamento
+    def loading_pipeline(path):
+        """Loading pipeline build on training phase
         """
         
         with open(path, 'rb') as file:

@@ -13,7 +13,7 @@ CORS(app)
 
 # Grouping routes tags
 home_tag = Tag(name="Documentation", description="Document Selection: Swagger, Redoc ou RapiDoc.")
-paciente_tag = Tag(name="Patients", description="Insert, view, remove and prediction of Heart Disease Patients.")
+patient_tag = Tag(name="Patients", description="Insert, view, remove and prediction of Heart Disease Patients.")
 
 
 @app.get('/', tags=[home_tag])
@@ -23,21 +23,20 @@ def home():
     return redirect('/openapi')
 
 
-@app.get('/patients', tags=[paciente_tag],
+@app.get('/patients', tags=[patient_tag],
          responses={"200": PatientViewSchema, "404": ErrorSchema})
-def get_pacientes():
+def get_patients():
     """List all patients     
     Returns:
         list of all patients and yours predictions
     """
     logger.debug("Data collection from all patients")
-    # Criando conexão com a base
+
     session = Session()
-    # Buscando todos os pacientes
+
     patients = session.query(Patient).all()
     
     if not patients:
-        # Se não houver pacientes
         return {"patients": []}, 200
     else:
         logger.debug(f"%d patients found: " % len(patients))
@@ -45,7 +44,7 @@ def get_pacientes():
         return show_patients(patients), 200
 
 
-@app.post('/patient', tags=[paciente_tag],
+@app.post('/patient', tags=[patient_tag],
           responses={"200": PatientViewSchema, "400": ErrorSchema, "409": ErrorSchema})
 def predict():
     """Enter the patient into the database and perform your Heart Disease prediction.
@@ -53,15 +52,16 @@ def predict():
         Patient data and its prediction.
     """
     try:
-        content: PatientSchema = request.get_json()  # Extraindo JSON da requisição
+        # Extrating JSON from the request
+        content: PatientSchema = request.get_json()  
 
-        # Preparando os dados para o modelo
-        X_input = PreProcessador.preparar_form(content)  # Passa o dicionário
+        # Prepare data for the model
+        X_input = PreProcessor.prepare_form(content)  # Pass the dictionary
         model_path = './MachineLearning/pipelines/svm_heart_disease_pipeline.pkl'
-        modelo = Pipeline.carrega_pipeline(model_path)
+        modelo = Pipeline.loading_pipeline(model_path)
         target = int(Model.preditor(modelo, X_input)[0])
 
-        paciente = Patient(
+        patient = Patient(
             name=content["name"],
             age=content["age"],
             sex=content["sex"],
@@ -82,24 +82,24 @@ def predict():
         # Enter the patient into the database
         session = Session()
 
-        if session.query(Patient).filter(Patient.name == paciente.name).first():
+        if session.query(Patient).filter(Patient.name == patient.name).first():
             error_msg = "Patient already exists"
-            logger.warning(f"Error on add patient: '{paciente.name}', {error_msg}")
+            logger.warning(f"Error on add patient: '{patient.name}', {error_msg}")
             return jsonify({"message": error_msg}), 409
 
-        session.add(paciente)
+        session.add(patient)
         session.commit()
-        logger.debug(f"Enter patient: '{paciente.name}'")
-        return show_patient(paciente), 200
+        logger.debug(f"Enter patient: '{patient.name}'")
+        return show_patient(patient), 200
 
     except Exception as e:
         logger.error(f"Error on add patient: {str(e)}")
         return jsonify({"message": "Error on server"}), 500
 
 
-@app.delete('/patient', tags=[paciente_tag],
+@app.delete('/patient', tags=[patient_tag],
             responses={"200": PatientViewSchema, "404": ErrorSchema})
-def delete_paciente(query: PatientSearchSchema):
+def delete_patient(query: PatientSearchSchema):
     """Remove patient of the database
 
     Args:
@@ -109,24 +109,24 @@ def delete_paciente(query: PatientSearchSchema):
         msg: Success or error message
     """
     
-    paciente_name = unquote(query.name)
-    logger.debug(f"Deleting patient data #{paciente_name}")
+    patient_name = unquote(query.name)
+    logger.debug(f"Deleting patient data #{patient_name}")
     
-    # Criando conexão com a base
+    # Create database conection
     session = Session()
     
-    # Buscando paciente
-    paciente = session.query(Patient).filter(Patient.name == paciente_name).first()
+    # Search patient
+    patient = session.query(Patient).filter(Patient.name == patient_name).first()
     
-    if not paciente:
-        error_msg = "Paciente não encontrado na base :/"
-        logger.warning(f"Erro ao deletar paciente '{paciente_name}', {error_msg}")
+    if not patient:
+        error_msg = "Patient not found!"
+        logger.warning(f"Error deleting patient'{patient_name}', {error_msg}")
         return {"message": error_msg}, 404
     else:
-        session.delete(paciente)
+        session.delete(patient)
         session.commit()
-        logger.debug(f"Deletado paciente #{paciente_name}")
-        return {"message": f"Paciente {paciente_name} removido com sucesso!"}, 200
+        logger.debug(f"Patient deleted #{patient_name}")
+        return {"message": f"patient {patient_name} deleted with success!"}, 200
 
  
 if __name__ == '__main__':
