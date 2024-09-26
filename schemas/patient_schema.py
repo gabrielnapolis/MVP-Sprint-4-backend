@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from model.patient import Patient
 from typing import List
+from flask import jsonify
 
 class PatientSchema(BaseModel):
     name: str = "Jhon"
@@ -68,7 +69,7 @@ def show_patients(patients: List[Patient]):
     result = []
     for patient in patients:
         result.append({
-           "id": patient.id,
+            "id": patient.id,
             "age": patient.age,
             "name": patient.name,
             "sex": patient.sex,
@@ -86,4 +87,4 @@ def show_patients(patients: List[Patient]):
             "target": patient.target
         })
 
-    return {"patients": result}
+    return jsonify(result)

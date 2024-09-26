@@ -37,10 +37,9 @@ def get_patients():
     patients = session.query(Patient).all()
     
     if not patients:
-        return {"patients": []}, 200
+        return [], 200
     else:
         logger.debug(f"%d patients found: " % len(patients))
-        print(patients)
         return show_patients(patients), 200
 
 
