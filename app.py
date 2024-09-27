@@ -96,9 +96,8 @@ def predict():
         return jsonify({"message": "Error on server"}), 500
 
 
-@app.delete('/patient', tags=[patient_tag],
-            responses={"200": PatientViewSchema, "404": ErrorSchema})
-def delete_patient(query: PatientSearchSchema):
+@app.route('/patient/<id>', methods=["DELETE"])
+def delete_patient(id):
     """Remove patient of the database
 
     Args:
@@ -108,24 +107,18 @@ def delete_patient(query: PatientSearchSchema):
         msg: Success or error message
     """
     
-    patient_name = unquote(query.name)
-    logger.debug(f"Deleting patient data #{patient_name}")
-    
     # Create database conection
     session = Session()
     
     # Search patient
-    patient = session.query(Patient).filter(Patient.name == patient_name).first()
-    
+    patient = session.query(Patient).filter(Patient.id == id).delete()
+    session.commit()
+
     if not patient:
         error_msg = "Patient not found!"
-        logger.warning(f"Error deleting patient'{patient_name}', {error_msg}")
         return {"message": error_msg}, 404
     else:
-        session.delete(patient)
-        session.commit()
-        logger.debug(f"Patient deleted #{patient_name}")
-        return {"message": f"patient {patient_name} deleted with success!"}, 200
+        return {"message":"patient deleted with success!", "id": id}, 200
 
  
 if __name__ == '__main__':
